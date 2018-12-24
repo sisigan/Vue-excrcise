@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>半球动画demo</title>
+    <script src="./lib/vue-2.4.0.js"></script>
+
+
+
+
+    <style>
+        .box{
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            background-color:red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <input type="button" value="动画效果" @click="flag=!flag">
+        <transition @before-enter="beforeEnter" @enter="enter" @after-enter="afterEnter">
+            <div class="box" v-show="flag"></div>
+        </transition>
+    </div>
+
+    <script>
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                flag: false
+            },
+            methods: {
+                beforeEnter(el){//开始前的位置,el表示动画的标签
+                    el.style.transform="translate(0,0)"
+                },
+                enter(el,done){//动画结束后的位置
+                    //强制动画刷新
+                    el.offsetLeft;
+                    el.style.transform="translate(200px,500px)";
+                    //设置动画时长，速度
+                    el.style.transition="all 1s ease";
+
+                    //监听动画事件,动画结束后,调用done方法
+                    el.addEventListener('webkitTransitionEnd',function(){
+                        //先移除动画效果,后调用 done()方法
+                        el.style.transition="";
+                        done();
+                    })
+                },
+                afterEnter(el){
+                    //动画结束后让flag变回false
+                    this.flag=!this.flag;
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
