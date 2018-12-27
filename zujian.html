@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>组件</title>
+    <script src="./lib/vue-2.4.0.js"></script>
+    <link rel="stylesheet" href="lib/bootstrap-3.3.7.css">
+</head>
+
+<body>
+    <div id="app">
+        
+        <div class="container">
+            <cmt @fun="getload"></cmt>
+            <ul class="list-group">
+                <li class="list-group-item" v-for="item in list" :key="item.id">
+                    <span class="badge">{{ item.name }}</span>
+                    {{ item.content }}
+                </li>
+            </ul>
+        </div>
+    </div>
+
+
+    <template id="tmp1">
+        <div>
+            <div class="form-group">
+                <label>评论人:</label>
+                <input type="text" class="form-control" v-model='name'>
+            </div>
+            <div class="form-group">
+                <label>评论内容:</label>
+                <textarea type="text" class="form-control" v-model='content'></textarea>
+            </div>
+            <div class="form-group">
+                <input type="button" value="发表评论" class="btn btn-primary" @click="add">
+            </div>
+        </div>
+    </template>
+
+
+    <script>
+        var comment = {
+            template: "#tmp1",
+            data(){
+                return{
+                    name:'',
+                    content:''
+                }
+            },
+            methods:{
+                add(){//发表评论的方法
+                    //获取到用户所填数据
+                    var lists={ id: Date.now(), name: this.name, content: this.content};
+                    //从本地拿到存储的评论数据
+                    var list=JSON.parse(localStorage.getItem('cms') || '[]');
+                    //加入最新数据,从数组的开头添加数据
+                    list.unshift(lists)
+                    //存储到localStorage,只能存储字符串
+                    localStorage.setItem('cms',JSON.stringify(list));
+                    //清空页面上的数据
+                    this.name=this.content="";
+                    //子组件调用父组件的方法
+                    this.$emit("fun")
+                }
+            }
+        }
+        let vm = new Vue({
+            el: '#app',
+            data: {
+                list: [
+                    { id: Date.now(), name: "萌萌", content: "我饿了" },
+                    { id: Date.now(), name: "娜娜", content: "走,我们去仟吉" },
+                    { id: Date.now(), name: "邰姐", content: "点杯奶茶吧!" }
+                ]
+            },
+            created() {//data与methods都已经初始化好了
+                this.getload()
+            },
+            methods: {
+                getload(){//页面刷新从localStorage获取数据
+                    var list=JSON.parse(localStorage.getItem('cms') || '[]');
+
+                    this.list=list;
+                }
+            },
+            components: {
+                'cmt': comment
+            }
+        })
+    </script>
+</body>
+
+</html>
